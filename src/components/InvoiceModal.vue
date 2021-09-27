@@ -5,7 +5,7 @@
     class="invoice-wrap flex flex-column"
   >
     <form @submit.prevent="submitForm" class="invoice-content">
-      <h4>New Invoice</h4>
+      <h1>New Invoice</h1>
 
       <!-- Bill From -->
       <div class="bill-from flex flex-column">
@@ -183,11 +183,12 @@
 </template>
 
 <script>
+import { mapMutations } from 'vuex'
 export default {
   name: 'invoiceModal',
   data() {
     return {
-      ateOptions: { year: 'numeric', month: 'short', day: 'numeric' },
+      dateOptions: { year: 'numeric', month: 'short', day: 'numeric' },
       docId: null,
       loading: null,
       billerStreetAddress: null,
@@ -211,6 +212,31 @@ export default {
       invoiceItemList: [],
       invoiceTotal: 0,
     }
+  },
+  created() {
+    this.invoiceDateUnix = Date.now()
+    this.invoiceDate = new Date(this.invoiceDateUnix).toLocaleDateString(
+      'en-us',
+      this.dateOptions
+    )
+  },
+  watch: {
+    paymentTerms() {
+      const futureDate = new Date()
+      this.paymentDueDateUnix = futureDate.setDate(
+        futureDate.getDate() + parseInt(this.paymentTerms)
+      )
+      this.paymentDueDate = new Date(
+        this.paymentDueDateUnix
+      ).toLocaleDateString('en-us', this.dateOptions)
+    },
+  },
+  methods: {
+    ...mapMutations(['TOGGLE_INVOICE']),
+
+    closeInvoice() {
+      this.TOGGLE_INVOICE()
+    },
   },
 }
 </script>
